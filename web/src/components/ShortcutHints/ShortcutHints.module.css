@@ -1,0 +1,35 @@
+.root {
+  max-width: 260px;
+  color: var(--color-fg-muted);
+  font-size: 12px;
+}
+
+.piano {
+  margin: 0 0 8px;
+}
+
+.list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.root kbd {
+  min-width: 16px;
+  padding: 1px 4px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  text-align: center;
+}

@@ -1,0 +1,6 @@
+.root {
+  position: absolute;
+  inset: 0;
+  display: block;
+  touch-action: none;
+}

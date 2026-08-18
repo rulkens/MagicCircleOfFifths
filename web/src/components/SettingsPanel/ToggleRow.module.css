@@ -1,0 +1,12 @@
+.root {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.root:hover {
+  color: var(--color-accent);
+}
