@@ -26,7 +26,7 @@ const initialState: SettingsState = {
   modeId: 'major',
   showNotes: true,
   showChords: true,
-  showOvertones: false,
+  showOvertones: true,
   showTonicStructure: true,
   showInfo: true,
   presenting: false,

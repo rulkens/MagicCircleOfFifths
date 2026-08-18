@@ -1,38 +1,26 @@
 /**
- * SoundingNotes — a lamp on the dial for each note being played, and optionally
- * the overtones it drags along with it.
+ * SoundingNotes — beads on the name ring for the pitch classes being played.
  *
- * Overtones are drawn small and dim on purpose: they are what the ear is being
- * pulled towards, not what the player pressed, and drawing them at equal weight
- * makes a plain triad look like a cluster.
+ * The overtones are not here: they belong to the notes that raise them, and
+ * travel down the time axis with them.
  */
 
 import type { ReactNode } from 'react';
-import { OVERTONE_SEMITONES } from '../../data/overtones';
-import NoteLamp from './NoteLamp';
+import { pitchClassOf } from '../../music/pitchClassOf';
+import NoteDisc from './NoteDisc';
 
 export type SoundingNotesProps = {
   readonly notes: readonly number[];
-  readonly showOvertones: boolean;
 };
 
-function SoundingNotes({ notes, showOvertones }: SoundingNotesProps): ReactNode {
+function SoundingNotes({ notes }: SoundingNotesProps): ReactNode {
+  const pitchClasses = [...new Set(notes.map(pitchClassOf))];
+
   return (
     <group>
-      {notes.map((note) => (
-        <NoteLamp key={note} note={note} radius={0.24} opacity={1} />
+      {pitchClasses.map((pitchClass) => (
+        <NoteDisc key={pitchClass} pitchClass={pitchClass} />
       ))}
-      {showOvertones &&
-        notes.flatMap((note) =>
-          OVERTONE_SEMITONES.map((semitones) => (
-            <NoteLamp
-              key={`${note}:${semitones}`}
-              note={note + semitones}
-              radius={0.1}
-              opacity={0.45}
-            />
-          )),
-        )}
     </group>
   );
 }

@@ -6,10 +6,10 @@ import SoundingNotes from '../SoundingNotes/SoundingNotes';
 
 function SoundingNotesContainer(): ReactNode {
   const notes = useAppSelector(selectSoundingNotes);
-  const settings = useAppSelector(selectSettings);
+  const showNotes = useAppSelector(selectSettings).showNotes;
 
-  if (!settings.showNotes) return null;
-  return <SoundingNotes notes={notes} showOvertones={settings.showOvertones} />;
+  if (!showNotes) return null;
+  return <SoundingNotes notes={notes} />;
 }
 
 export default memo(SoundingNotesContainer);
