@@ -1,0 +1,20 @@
+.root {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.message {
+  color: var(--color-fg-muted);
+}
+
+.button {
+  padding: 5px 10px;
+  color: var(--color-bg);
+  background: var(--color-accent);
+  border: none;
+  border-radius: 6px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}

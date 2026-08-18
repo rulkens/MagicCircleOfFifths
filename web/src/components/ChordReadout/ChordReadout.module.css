@@ -1,0 +1,24 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 200px;
+}
+
+.chord {
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.notes {
+  color: var(--color-fg-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.alternatives {
+  color: var(--color-fg-muted);
+  font-size: 12px;
+  opacity: 0.75;
+}
