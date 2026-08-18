@@ -25,7 +25,7 @@ function Scene(): ReactNode {
   return (
     <Canvas
       className={styles.root}
-      camera={{ position: [0, 7.5, 14], fov: 45 }}
+      camera={{ position: [0, 11, 21], fov: 45 }}
       dpr={[1, 2]}
       gl={{ antialias: true }}
     >
@@ -33,13 +33,13 @@ function Scene(): ReactNode {
         <color attach="background" args={[BACKGROUND_COLOR]} />
         {/* Fog does the fading of old notes, so nothing has to animate opacity
             per frame to make the past recede. */}
-        <fog attach="fog" args={[BACKGROUND_COLOR, 10, 38]} />
+        <fog attach="fog" args={[BACKGROUND_COLOR, 18, 58]} />
         <ambientLight intensity={0.7} />
         <directionalLight position={[6, 10, 12]} intensity={1.1} />
         <CircleOfFifthsContainer />
         <SoundingNotesContainer />
         <NoteRibbonsContainer />
-        <OrbitControls target={[0, 0, -5]} enablePan={false} minDistance={6} maxDistance={45} />
+        <OrbitControls target={[0, 0, -5]} enablePan={false} minDistance={8} maxDistance={70} />
       </Provider>
     </Canvas>
   );

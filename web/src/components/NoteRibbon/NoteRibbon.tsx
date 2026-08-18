@@ -1,68 +1,104 @@
 /**
- * NoteRibbon — one played note, drawn as a bar receding down the time axis.
+ * NoteRibbon — one played note as a slice of the dial, receding down the time axis.
  *
- * The bar's angle is the note's place on the circle and its radius is the
- * octave, both fixed for the note's lifetime. Only its length and depth move,
- * and they move every frame, so they are written straight onto the transform in
- * `useFrame` rather than dispatched — a note held for four seconds would
- * otherwise be 240 store writes saying nothing but "still going".
+ * The note and its overtones are one object: they start together, end together
+ * and travel together, so a single group carries the whole thing through time
+ * and the arcs inside it only ever differ by ring and strength.
+ *
+ * That group's depth and position move every frame, and are written straight
+ * onto the transform in `useFrame` rather than dispatched — a note held for
+ * four seconds would otherwise be 240 store writes saying "still going".
  */
 
 import { useFrame } from '@react-three/fiber';
-import { useRef, type ReactNode } from 'react';
-import type { Mesh } from 'three';
+import { useMemo, useRef, type ReactNode } from 'react';
+import type { Group } from 'three';
 import type { NoteEvent } from '../../@types/NoteEvent';
-import { RIBBON_GLOW, RIBBON_HEIGHT, RIBBON_WIDTH, UNITS_PER_SECOND } from '../../data/scene';
+import { OVERTONE_SEMITONES } from '../../data/overtones';
+import {
+  ARC_EXTRUDE_SETTINGS,
+  ARC_RADIANS,
+  RIBBON_GLOW,
+  RIBBON_THICKNESS,
+  UNITS_PER_SECOND,
+} from '../../data/scene';
 import { noteSoundState } from '../../music/noteSoundState';
 import { pitchClassOf } from '../../music/pitchClassOf';
 import { noteColor } from '../../utils/color/noteColor';
+import { overtoneOpacity } from '../../utils/color/overtoneOpacity';
+import { arcRibbonShape } from '../../utils/geometry/arcRibbonShape';
 import { cofAngle } from '../../utils/geometry/cofAngle';
 import { noteRadius } from '../../utils/geometry/noteRadius';
-import { pointOnCircle } from '../../utils/geometry/pointOnCircle';
 
 export type NoteRibbonProps = {
   readonly event: NoteEvent;
   /** How deep the visible time axis runs, in seconds. */
   readonly timeSpanSeconds: number;
+  readonly showOvertones: boolean;
 };
 
 /** Keeps a just-struck note visible before it has any length to speak of. */
 const MINIMUM_LENGTH = 0.08;
 
-function NoteRibbon({ event, timeSpanSeconds }: NoteRibbonProps): ReactNode {
-  const meshRef = useRef<Mesh>(null);
+function NoteRibbon({ event, timeSpanSeconds, showOvertones }: NoteRibbonProps): ReactNode {
+  const groupRef = useRef<Group>(null);
+  const loudness = 0.45 + 0.55 * (event.velocity / 127);
 
-  const angle = cofAngle(pitchClassOf(event.note));
-  const [x, y] = pointOnCircle(angle, noteRadius(event.note));
-  const color = noteColor(pitchClassOf(event.note));
-  const loudness = 0.35 + 0.65 * (event.velocity / 127);
+  const arcs = useMemo(() => {
+    const notes = showOvertones
+      ? [event.note, ...OVERTONE_SEMITONES.map((semitones) => event.note + semitones)]
+      : [event.note];
+
+    return notes.map((note, index) => ({
+      key: `${note}:${index}`,
+      angle: cofAngle(pitchClassOf(note)),
+      color: noteColor(pitchClassOf(note)),
+      // The fundamental is what was actually played, so it stays solid; the
+      // harmonics behind it fade away with their number.
+      opacity: index === 0 ? 1 : overtoneOpacity(index - 1),
+      shape: arcRibbonShape(
+        noteRadius(note),
+        RIBBON_THICKNESS * (index === 0 ? loudness : 0.6),
+        ARC_RADIANS,
+      ),
+    }));
+  }, [event.note, loudness, showOvertones]);
 
   useFrame(() => {
-    const mesh = meshRef.current;
-    if (!mesh) return;
+    const group = groupRef.current;
+    if (!group) return;
 
     const now = performance.now();
     const headSeconds = (now - (event.endedAt ?? now)) / 1000;
     const tailSeconds = (now - event.startedAt) / 1000;
 
     // Past the far edge of the view there is nothing to draw; the ribbon stays
-    // mounted because the store still holds the event, and widening the span
+    // mounted because the store still holds the event, so widening the span
     // brings it back without replaying anything.
-    mesh.visible = headSeconds <= timeSpanSeconds;
-    mesh.scale.z = Math.max(MINIMUM_LENGTH, (tailSeconds - headSeconds) * UNITS_PER_SECOND);
-    mesh.position.z = -((headSeconds + tailSeconds) / 2) * UNITS_PER_SECOND;
+    group.visible = headSeconds <= timeSpanSeconds;
+    group.scale.z = Math.max(MINIMUM_LENGTH, (tailSeconds - headSeconds) * UNITS_PER_SECOND);
+    group.position.z = -tailSeconds * UNITS_PER_SECOND;
   });
 
+  const glow = RIBBON_GLOW[noteSoundState(event)];
+
   return (
-    <mesh ref={meshRef} position={[x, y, 0]} rotation={[0, 0, -angle]} scale={[1, loudness, 1]}>
-      <boxGeometry args={[RIBBON_WIDTH, RIBBON_HEIGHT, 1]} />
-      <meshStandardMaterial
-        color={color}
-        emissive={color}
-        emissiveIntensity={RIBBON_GLOW[noteSoundState(event)]}
-        roughness={0.35}
-      />
-    </mesh>
+    <group ref={groupRef}>
+      {arcs.map((arc) => (
+        <mesh key={arc.key} rotation={[0, 0, -arc.angle]}>
+          <extrudeGeometry args={[arc.shape, ARC_EXTRUDE_SETTINGS]} />
+          <meshStandardMaterial
+            color={arc.color}
+            emissive={arc.color}
+            emissiveIntensity={glow}
+            roughness={0.35}
+            transparent={arc.opacity < 1}
+            opacity={arc.opacity}
+            depthWrite={arc.opacity === 1}
+          />
+        </mesh>
+      ))}
+    </group>
   );
 }
 

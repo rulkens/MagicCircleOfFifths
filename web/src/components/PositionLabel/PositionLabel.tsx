@@ -43,7 +43,7 @@ function PositionLabel({
       <Text
         font={LABEL_FONT}
         position={[x, y, 0]}
-        fontSize={isTonic ? 0.62 : 0.52}
+        fontSize={isTonic ? 0.46 : 0.4}
         color={color}
         anchorX="center"
         anchorY="middle"
@@ -54,7 +54,7 @@ function PositionLabel({
         <Text
           font={LABEL_FONT}
           position={[dx, dy, 0]}
-          fontSize={0.32}
+          fontSize={0.42}
           color={isTonic ? TONIC_COLOR : LABEL_COLOR}
           anchorX="center"
           anchorY="middle"
