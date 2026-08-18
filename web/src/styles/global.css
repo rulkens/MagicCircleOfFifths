@@ -1,0 +1,43 @@
+/* Design tokens and the page reset. Component rules belong in CSS modules. */
+
+:root {
+  /* Keep in step with BACKGROUND_COLOR in src/data/theme.ts — the scene paints
+     the same value from WebGL, and a mismatch shows as a seam on load. */
+  --color-bg: #0a0c12;
+  --color-panel: rgba(18, 22, 33, 0.82);
+  --color-border: rgba(120, 140, 180, 0.18);
+  --color-fg: #dfe6f5;
+  --color-fg-muted: #8892a8;
+  --color-accent: #ffd479;
+
+  --radius: 10px;
+  --gap: 12px;
+
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+  overflow: hidden;
+}
